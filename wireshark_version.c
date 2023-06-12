@@ -65,6 +65,8 @@ good_magic:
 
 int main(){
     struct wtap *wth;
+    wth->fh="file_path_from_user_input";
+    wth->priv=NULL;
     int *err=0;
     mpeg_open(wth,err);
 }
