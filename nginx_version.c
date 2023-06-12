@@ -14,25 +14,35 @@ struct chunk
 };
 
 
-char *user_input() {
+char *user_input1() {
     return "<replacement>";
 }
 
-int parse_chunked(unsigned char ch,
+unsigned char *user_input2(){
+    return "FFFF";
+}
+
+int parse_chunked(unsigned char* pos,
     chunk *ctx)
 {
-    unsigned char      c;
+    unsigned char      c,ch;
     int   rc=0;
-    if (ch >= '0' && ch <= '9') {
-        ctx->size = ctx->size * 16 + (ch - '0');
-        rc=1;
-    }
-    else{
-        c = (unsigned char) (ch | 0x20);
-        if (c >= 'a' && c <= 'f') {
-            ctx->size = ctx->size * 16 + (c - 'a' + 10);
+    for (int idx=0;idx<4;idx++)
+    {
+        ch=*pos;
+        if (ch >= '0' && ch <= '9') {
+            ctx->size = ctx->size * 16 + (ch - '0');
             rc=1;
         }
+        else{
+            c = (unsigned char) (ch | 0x20);
+            if (c >= 'a' && c <= 'f') {
+                ctx->size = ctx->size * 16 + (c - 'a' + 10);
+                rc=1;
+            }
+            pos++;
+        }
+    
     }
     
     return rc;
@@ -55,14 +65,15 @@ static void hack_me(chunk *r)
 }
 
 int main(){
-    char *user_content=user_input();
+    char *user_content=user_input1();
     struct chunk* r;
     r->content=user_content;
     r->size=sizeof(user_content);
+    unsigned char* pos=user_input2();
 
     // chunk the request
     int rc=0;
-    rc=parse_chunked(sizeof(user_content),r);
+    rc=parse_chunked(pos,r);
     if(rc==1){
         hack_me(r);
     }
